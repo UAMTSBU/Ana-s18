@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anaïs 🎵</title>
+  <meta name="description" content="Un petit cadeau en musique." />
+  <meta property="og:title" content="Anaïs 🎵" />
+  <meta property="og:description" content="Un petit cadeau en musique." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="" />
+  <style>
+    :root {
+      --bg: #0f0f10;
+      --card: #151517;
+      --accent: #ffffff;
+      --muted: #9aa0a6;
+      --ring: #2a2a2e;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 70% -10%, #1e1e22, var(--bg));
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+    }
+    .card {
+      width: min(640px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      padding: 28px 28px 32px;
+      backdrop-filter: blur(6px);
+    }
+    .head {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 999px; background: #7dd3fc;
+      box-shadow: 0 0 18px rgba(125,211,252,0.8);
+    }
+    h1 { font-size: clamp(22px, 4vw, 28px); margin: 0; font-weight: 600; letter-spacing: 0.2px; }
+    .sub { color: var(--muted); font-size: 14px; margin: 2px 0 18px; }
+
+    .player {
+      display: grid; gap: 18px; margin-top: 12px;
+    }
+    .controls { display: flex; align-items: center; gap: 16px; }
+    .play {
+      width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--ring);
+      display: grid; place-items: center; cursor: pointer; background: #1a1a1d;
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+    }
+    .play:hover { transform: translateY(-1px); background: #202024; }
+    .play:active { transform: translateY(1px) scale(.99); }
+    .play svg { width: 24px; height: 24px; fill: #fff; }
+
+    .bar { flex: 1; display: grid; gap: 8px; }
+    .track { position: relative; height: 8px; background: #202227; border-radius: 999px; cursor: pointer; }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0%; background: linear-gradient(90deg,#60a5fa,#a78bfa); border-radius: 999px; }
+    .thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 999px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.45); }
+
+    .time { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+
+    .note { margin-top: 16px; color: #cbd5e1; font-size: 14px; opacity: .9; letter-spacing: .2px; }
+    .sig { color: #94a3b8; font-size: 12px; margin-top: 10px; opacity: .7; }
+
+    .flower { user-select: none; font-size: 18px; margin-left: 4px; }
+
+    .tiny { color: var(--muted); font-size: 11px; text-align: center; margin-top: 20px; }
+    .hidden { display: none; }
+    a { color: #93c5fd; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-label="Musique pour Anaïs">
+    <div class="head" aria-hidden="true">
+      <span class="dot"></span>
+      <span class="sub">Un petit secret en musique</span>
+    </div>
+    <h1>Anaïs <span class="flower">🌸</span></h1>
+    <p class="sub" id="subtitle">Joyeux anniversaire, Anaïs</p>
+
+    <!--
+      👉 Comment utiliser
+      1) Remplacez la valeur de AUDIO_URL ci-dessous par le lien direct vers votre fichier .mp3 ou .m4a
+      2) (Optionnel) Remplacez le texte du sous‑titre ci-dessus si vous offrez la page après l’anniversaire
+      3) Hébergez ce fichier (Netlify, GitHub Pages, Vercel, ou n’importe quel hébergeur statique)
+      4) Générez un QR-code pointant vers l’URL publique de cette page
+    -->
+
+    <section class="player" aria-label="Lecteur audio">
+      <div class="controls">
+        <button class="play" id="btn" aria-label="Lire / Mettre en pause">
+          <svg id="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="icon-pause" class="hidden" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        </button>
+        <div class="bar" aria-label="Barre de progression">
+          <div class="track" id="track" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+            <div class="fill" id="fill"></div>
+            <div class="thumb" id="thumb" style="left:0%"></div>
+          </div>
+          <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+        </div>
+      </div>
+      <audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
+    </section>
+
+    <p class="note" id="note" aria-live="polite">Appuie sur Lecture — le reste fera le cœur.</p>
+    <p class="sig">Encore 18 ans.</p>
+
+    <p class="tiny">Si le son ne démarre pas, tu peux aussi <a id="dl" href="#" download>télécharger la chanson</a>. <span aria-hidden="true">🎧</span></p>
+  </main>
+
+  <script>
+    // === CONFIGURATION ===
+    // 1) Remplace cette URL par le lien direct vers le fichier audio (mp3/m4a)
+    const AUDIO_URL = "https://drive.google.com/uc?export=download&id=1DN4acPw71aXVAi4ljqF7Q_SD0nr-u5jX"; // ← Lien direct Google Drive
+
+    // 2) (Optionnel) Si tu offres la page après l'anniversaire, tu peux adapter la phrase :
+    // document.getElementById('subtitle').textContent = "Pour toi, simplement";
+
+    // === LECTEUR ===
+    const audio = document.getElementById('audio');
+    audio.src = AUDIO_URL;
+
+    const btn = document.getElementById('btn');
+    const iconPlay = document.getElementById('icon-play');
+    const iconPause = document.getElementById('icon-pause');
+    const track = document.getElementById('track');
+    const fill = document.getElementById('fill');
+    const thumb = document.getElementById('thumb');
+    const cur = document.getElementById('cur');
+    const dur = document.getElementById('dur');
+
+    const fmt = s => {
+      if (!isFinite(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const r = Math.floor(s % 60);
+      return m + ':' + String(r).padStart(2, '0');
+    };
+
+    audio.addEventListener('loadedmetadata', () => {
+      dur.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      cur.textContent = fmt(audio.currentTime);
+      const p = (audio.currentTime / audio.duration) * 100 || 0;
+      fill.style.width = p + '%';
+      thumb.style.left = p + '%';
+      track.setAttribute('aria-valuenow', Math.round(p));
+    });
+
+    audio.addEventListener('ended', () => {
+      iconPlay.classList.remove('hidden');
+      iconPause.classList.add('hidden');
+    });
+
+    btn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+      } else {
+        audio.pause();
+        iconPlay.classList.remove('hidden');
+        iconPause.classList.add('hidden');
+      }
+    });
+
+    const seek = (clientX) => {
+      const rect = track.getBoundingClientRect();
+      const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+      const ratio = x / rect.width;
+      audio.currentTime = ratio * (audio.duration || 0);
+    };
+
+    track.addEventListener('pointerdown', (e) => {
+      track.setPointerCapture(e.pointerId);
+      seek(e.clientX);
+      const move = ev => seek(ev.clientX);
+      const up = ev => {
+        track.releasePointerCapture(e.pointerId);
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+
+    track.addEventListener('keydown', (e) => {
+      if (!audio.duration) return;
+      const step = audio.duration / 50; // 2% steps
+      if (e.key === 'ArrowRight') { audio.currentTime = Math.min(audio.currentTime + step, audio.duration); }
+      if (e.key === 'ArrowLeft')  { audio.currentTime = Math.max(audio.currentTime - step, 0); }
+    });
+    </script>
+  <script>
+    // Met à jour le lien de téléchargement direct sous le lecteur
+    document.getElementById('dl').setAttribute('href', AUDIO_URL);
+  </script>
+</body>
+</html>
